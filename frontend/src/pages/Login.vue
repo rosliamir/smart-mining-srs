@@ -20,7 +20,7 @@
 <script setup>
 import { ref } from 'vue'; import { useRouter } from 'vue-router'
 import { login as apiLogin } from '../services/api'
-const u=ref('admin@smartmining.local'), p=ref('password'); const router=useRouter()
+const u=ref('admin@selgem.local'), p=ref('password'); const router=useRouter()
 async function login(){
   try { await apiLogin(u.value, p.value) }
   catch(e){ localStorage.setItem('sm_auth','1') }   // offline fallback -> mock data

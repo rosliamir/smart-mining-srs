@@ -2,8 +2,8 @@
 """Stream the full Strapi export into Postgres via CSV + COPY, resolving legacy FKs."""
 import ijson, csv, subprocess, os, sys, tempfile, json
 
-DATA = os.path.expanduser("~/smart-mining-srs/data")
-DB = "smart_mining"
+DATA = os.path.expanduser("~/selgem-srs/data")
+DB = "selgem"
 TMP = tempfile.mkdtemp(prefix="smimport_")
 
 def psql(sql):

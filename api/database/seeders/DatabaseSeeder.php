@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
 
         // Admin login for the Filament panel
         $admin = User::firstOrCreate(
-            ['email' => 'admin@smartmining.local'],
+            ['email' => 'admin@selgem.local'],
             ['name' => 'Administrator', 'username' => 'admin', 'password' => Hash::make('password'), 'confirmed' => true]
         );
         $admin->assignRole('super_admin');

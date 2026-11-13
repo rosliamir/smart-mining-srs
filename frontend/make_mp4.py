@@ -2,7 +2,7 @@ import imageio.v2 as imageio
 from PIL import Image
 import os, numpy as np
 
-OUT="/Users/rosliamir/smart-mining-srs/compare"
+OUT="/Users/rosliamir/selgem-srs/compare"
 order=["login","dashboard","account","attendance","monitoring","map","site-management","user-management"]
 paths=[os.path.join(OUT,f"compare-{n}.png") for n in order]
 

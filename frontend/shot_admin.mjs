@@ -3,7 +3,7 @@ const OUT='/private/tmp/claude-501/-Users-rosliamir/a631b6de-d1a5-436b-bc66-d43f
 const B='http://127.0.0.1:8008'
 const b=await chromium.launch();const p=await b.newPage({viewport:{width:1440,height:900}})
 await p.goto(`${B}/admin/login`,{waitUntil:'networkidle',timeout:30000})
-await p.fill('input[type=email]','admin@smartmining.local')
+await p.fill('input[type=email]','admin@selgem.local')
 await p.fill('input[type=password]','password')
 await p.click('button[type=submit]')
 await p.waitForTimeout(3500)

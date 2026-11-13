@@ -5,7 +5,7 @@ Run: python3 sync_latest.py   (prints a JSON summary on the last line)."""
 import json, csv, subprocess, os, tempfile, urllib.request, re, sys
 
 STRAPI = "https://selgem-api.inference.asia"
-DB = "smart_mining"
+DB = "selgem"
 TMP = tempfile.mkdtemp()
 _TIME = re.compile(r'^\d{1,2}:\d{2}(:\d{2})?$')
 

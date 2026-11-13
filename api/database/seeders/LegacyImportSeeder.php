@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Imports the reverse-engineered Strapi export (~/smart-mining-srs/data/*.json)
+ * Imports the reverse-engineered Strapi export (~/selgem-srs/data/*.json)
  * into the Postgres schema, resolving legacy Mongo _id references to new FKs.
  */
 class LegacyImportSeeder extends Seeder
@@ -17,7 +17,7 @@ class LegacyImportSeeder extends Seeder
 
     public function run(): void
     {
-        $this->dir = getenv('HOME') . '/smart-mining-srs/data';
+        $this->dir = getenv('HOME') . '/selgem-srs/data';
         if (! is_dir($this->dir)) {
             $this->command->warn("Export dir not found: {$this->dir} — skipping data import.");
             return;

@@ -1,5 +1,5 @@
 # Roles & Permissions Matrix (revalidated)
-## Smart Monitoring System — companion to `SRS.md`, `ERD.md`, `TRACEABILITY.md`
+## Selgem Monitoring System — companion to `SRS.md`, `ERD.md`, `TRACEABILITY.md`
 
 - **Source:** `GET /users-permissions/roles` + `GET /users-permissions/roles/:id` (Strapi v3 users‑permissions plugin)
 - **Revalidated:** 2026‑11‑11 as `azlina` (super_admin)

@@ -37,7 +37,7 @@ try {
   await cap(byId.login.title, byId.login.sub)
   mark('login')
   const em = await page.$('input'); const pw = (await page.$$('input'))[1]
-  await em.click(); await em.fill(''); await page.keyboard.type('admin@smartmining.local', { delay: 80 })
+  await em.click(); await em.fill(''); await page.keyboard.type('admin@selgem.local', { delay: 80 })
   await sleep(400); await pw.click(); await pw.fill(''); await page.keyboard.type('password', { delay: 100 })
   const loginEnd = vStart + offsets[0].start * 1000 + byId.login.dur * 1000 + TAIL
   const rem = loginEnd - Date.now() - 1400

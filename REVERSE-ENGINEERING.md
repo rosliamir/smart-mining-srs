@@ -1,4 +1,4 @@
-# How we reverse-engineered the Smart Mining system
+# How we reverse-engineered the Selgem system
 Method used to reconstruct the system from the live deployment — repeatable for any similar SPA + API app.
 
 ## Principle

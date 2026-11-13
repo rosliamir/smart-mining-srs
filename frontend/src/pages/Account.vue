@@ -13,7 +13,7 @@
         <label class="lbl">Email</label>
         <div class="input-group mb-3">
           <span class="input-group-text bg-light border-end-0"><i class="fa-regular fa-user text-secondary"></i></span>
-          <input class="form-control bg-light border-start-0" value="admin@smartmining.local" readonly />
+          <input class="form-control bg-light border-start-0" value="admin@selgem.local" readonly />
         </div>
         <label class="lbl">Role</label>
         <div class="d-flex align-items-center justify-content-between form-control bg-light mb-3">

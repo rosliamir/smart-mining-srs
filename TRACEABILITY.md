@@ -1,5 +1,5 @@
 # Requirements Traceability Matrix (RTM) & Revalidation Checklist
-## Smart Monitoring System ("Smart Mining") — companion to `SRS.md` + `ERD.md`
+## Selgem Monitoring System — companion to `SRS.md` + `ERD.md`
 
 - **Purpose:** Trace every module / submodule / entity / requirement back to a real, verifiable source URL in the live system, with a revalidation status.
 - **Revalidated:** 2026‑11‑11 15:37 UTC, authenticated as `azlina` (Super Admin).

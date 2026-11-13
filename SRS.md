@@ -1,5 +1,5 @@
 # Software Requirements Specification (SRS)
-## Smart Monitoring System ("Smart Mining") — Selgem / KSSB
+## Selgem Monitoring System — KSSB
 
 - **Document type:** Reverse‑engineering SRS (for full system reconstruction)
 - **Prepared from:** Live production system `https://smart-mining.selgem.com` (frontend) + `https://selgem-api.inference.asia` (API)
@@ -13,7 +13,7 @@
 ## 1. Introduction
 
 ### 1.1 Purpose
-Define the complete functional and non‑functional requirements of the **Smart Monitoring System** — a web platform used by KSSB/Selgem to supervise sand‑mining / quarry sites across Malaysia. It covers live CCTV/drone monitoring, geospatial site mapping, employee attendance, incident/docket reporting, and the **F001 weekly reporting workflow** (the core operational artefact).
+Define the complete functional and non‑functional requirements of the **Selgem Monitoring System** — a web platform used by KSSB/Selgem to supervise sand‑mining / quarry sites across Malaysia. It covers live CCTV/drone monitoring, geospatial site mapping, employee attendance, incident/docket reporting, and the **F001 weekly reporting workflow** (the core operational artefact).
 
 ### 1.2 Scope
 The system provides:

@@ -1,7 +1,7 @@
-# Smart Mining — Backend (Laravel 13 + Filament + PostgreSQL/PostGIS)
+# Selgem — Backend (Laravel 13 + Filament + PostgreSQL/PostGIS)
 
-Reverse-engineered rebuild of the Selgem/KSSB Smart Monitoring System.
-Companion to the SRS/ERD docs in `~/smart-mining-srs` and the Vue frontend in `~/smart-mining-proto`.
+Reverse-engineered rebuild of the Selgem/KSSB Selgem Monitoring System.
+Companion to the SRS/ERD docs in `~/selgem-srs` and the Vue frontend in `~/selgem-frontend`.
 
 ## Stack
 - **Laravel 13** (API + admin host)
@@ -13,18 +13,18 @@ Companion to the SRS/ERD docs in `~/smart-mining-srs` and the Vue frontend in `~
 
 ## Run
 ```bash
-# DB already created: smart_mining (PostGIS enabled)
-cd ~/smart-mining-api
+# DB already created: selgem (PostGIS enabled)
+cd ~/selgem-api
 php artisan serve --port=8008
 ```
-- **Admin panel:** http://127.0.0.1:8008/admin  — `admin@smartmining.local` / `password`
+- **Admin panel:** http://127.0.0.1:8008/admin  — `admin@selgem.local` / `password`
 - **API base:** http://127.0.0.1:8008/api
 
 ### Frontend (separate terminal)
 ```bash
-cd ~/smart-mining-proto && npm run dev   # http://localhost:5178
+cd ~/selgem-frontend && npm run dev   # http://localhost:5178
 ```
-Login with `admin@smartmining.local` / `password` — the SPA authenticates against the API
+Login with `admin@selgem.local` / `password` — the SPA authenticates against the API
 and loads live data (falls back to bundled mock JSON if the API is offline).
 
 ## Reset / reseed
@@ -62,7 +62,7 @@ original system, which enforced roles only on the client.
 docker run -p 9000:9000 -p 9001:9001 \
   -e MINIO_ROOT_USER=minioadmin -e MINIO_ROOT_PASSWORD=minioadmin \
   minio/minio server /data --console-address ":9001"
-# then create the bucket "smart-mining" in the console (http://127.0.0.1:9001)
+# then create the bucket "selgem" in the console (http://127.0.0.1:9001)
 ```
 `config/filesystems.php` disk `s3` is pre-configured from `.env` (default disk stays `local`
 so nothing breaks when MinIO is not running). Use `Storage::disk('s3')` for large assets.
