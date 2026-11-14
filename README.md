@@ -37,3 +37,6 @@ Default login (local seed data): `admin@kssb.local` / `password`.
 - The raw JSON export of the legacy system (~1.3 GB) is not committed; the database dump contains the imported data.
 - Scripts that talk to the legacy system (`api/database/sync_latest.py`, `frontend/capture.mjs`, etc.) read
   credentials from the environment: `LEGACY_USER`, `LEGACY_EMAIL`, `LEGACY_PASSWORD`.
+
+## Deployment
+See [DEPLOY.md](DEPLOY.md) for installing on a server (nginx + PHP-FPM + PostgreSQL/PostGIS), including https://smart-mining.sena.my.
