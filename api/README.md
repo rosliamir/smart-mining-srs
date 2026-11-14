@@ -1,6 +1,6 @@
 # Selgem — Backend (Laravel 13 + Filament + PostgreSQL/PostGIS)
 
-Reverse-engineered rebuild of the Selgem/KSSB Selgem Monitoring System.
+Reverse-engineered rebuild of the KSSB Smart Monitoring System.
 Companion to the SRS/ERD docs in `~/selgem-srs` and the Vue frontend in `~/selgem-frontend`.
 
 ## Stack
@@ -17,14 +17,14 @@ Companion to the SRS/ERD docs in `~/selgem-srs` and the Vue frontend in `~/selge
 cd ~/selgem-api
 php artisan serve --port=8008
 ```
-- **Admin panel:** http://127.0.0.1:8008/admin  — `admin@selgem.local` / `password`
+- **Admin panel:** http://127.0.0.1:8008/admin  — `admin@kssb.local` / `password`
 - **API base:** http://127.0.0.1:8008/api
 
 ### Frontend (separate terminal)
 ```bash
 cd ~/selgem-frontend && npm run dev   # http://localhost:5178
 ```
-Login with `admin@selgem.local` / `password` — the SPA authenticates against the API
+Login with `admin@kssb.local` / `password` — the SPA authenticates against the API
 and loads live data (falls back to bundled mock JSON if the API is offline).
 
 ## Reset / reseed

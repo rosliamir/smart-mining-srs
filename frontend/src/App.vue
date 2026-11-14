@@ -37,7 +37,6 @@
     </header>
 
     <main class="flex-grow-1"><router-view/></main>
-    <div class="powered">Powered by <b>Selgem</b></div>
 
     <!-- Sync Data modal -->
     <div v-if="syncOpen" class="sync-backdrop" @click.self="!syncing && (syncOpen=false)">
@@ -46,7 +45,7 @@
           <div class="d-flex align-items-center gap-2"><span class="sync-ic"><i class="fa-solid fa-rotate"></i></span><h5 class="fw-bold mb-0">Sync Data</h5></div>
           <button class="btn-x" @click="!syncing && (syncOpen=false)"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <p class="text-muted2">Pull the latest data from the live Selgem system into this database, so your records stay in sync.</p>
+        <p class="text-muted2">Pull the latest data from the live system into this database, so your records stay in sync.</p>
         <div v-if="syncResult" class="sync-ok"><i class="fa-solid fa-circle-check me-2"></i>
           Synced <b>{{ syncResult.attendances?.toLocaleString() }}</b> attendance records,
           <b>{{ syncResult.daily_reports?.toLocaleString() }}</b> daily reports and
@@ -71,7 +70,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { apiPost, currentUser } from './services/api'
 const route = useRoute(); const router = useRouter()
 const _u = currentUser()
-const userEmail = computed(()=> _u?.email || 'admin@selgem.local')
+const userEmail = computed(()=> _u?.email || 'admin@kssb.local')
 const userRole = computed(()=> (_u?.roles?.[0] || 'super_admin').replace(/_/g,' '))
 const syncOpen=ref(false), syncing=ref(false), syncResult=ref(null), syncError=ref('')
 function openSync(){ syncOpen.value=true; syncResult.value=null; syncError.value='' }

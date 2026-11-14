@@ -1,6 +1,6 @@
-# Selgem — Selgem Monitoring System Rebuild
+# Selgem — Smart Monitoring System Rebuild
 
-Reverse-engineered rebuild of the KSSB / Selgem **Selgem Monitoring System** (mining site monitoring,
+Reverse-engineered rebuild of the KSSB **Smart Monitoring System** (mining site monitoring,
 F001 weekly reports, attendance, permits, maps).
 
 | Folder | Contents |
@@ -31,7 +31,7 @@ npm install
 npm run dev                                       # http://localhost:5178
 ```
 
-Default login (local seed data): `admin@selgem.local` / `password`.
+Default login (local seed data): `admin@kssb.local` / `password`.
 
 ## Notes
 - The raw JSON export of the legacy system (~1.3 GB) is not committed; the database dump contains the imported data.

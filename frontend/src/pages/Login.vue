@@ -13,14 +13,13 @@
       <label class="glbl">Password</label>
       <input class="form-control mb-4" type="password" v-model="p" @keyup.enter="login"/>
       <button class="btn btn-primary w-100 py-2" @click="login">Submit</button>
-      <div class="text-center mt-3 powered-in">Powered by <b>Selgem</b></div>
     </div>
   </div>
 </template>
 <script setup>
 import { ref } from 'vue'; import { useRouter } from 'vue-router'
 import { login as apiLogin } from '../services/api'
-const u=ref('admin@selgem.local'), p=ref('password'); const router=useRouter()
+const u=ref('admin@kssb.local'), p=ref('password'); const router=useRouter()
 async function login(){
   try { await apiLogin(u.value, p.value) }
   catch(e){ localStorage.setItem('sm_auth','1') }   // offline fallback -> mock data

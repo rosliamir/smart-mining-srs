@@ -1,5 +1,5 @@
 # Entity‑Relationship Diagram & Data Dictionary
-## Selgem Monitoring System — companion to `SRS.md`
+## Smart Monitoring System — companion to `SRS.md`
 
 - **Source:** live Strapi v3 / MongoDB backend `https://selgem-api.inference.asia`, captured 2026‑11‑11.
 - **Note:** MongoDB document store. Every collection has `_id` (ObjectId, exposed as `id`), `__v`, `createdAt`, `updatedAt`. Relations are ObjectId references (Mongoose `ref`). "FK" below = reference field.

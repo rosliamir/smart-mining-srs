@@ -18,7 +18,7 @@ perl -pi -e "s/fill\('azlina\@semesta\.com\.my'\)/fill(process.env.LEGACY_EMAIL)
   frontend/login_fix.mjs frontend/capture.mjs frontend/cap_more.mjs
 perl -pi -e 's/\{"identifier":"azlina","password":"azlina"\}/{"identifier":os.environ["LEGACY_USER"],"password":os.environ["LEGACY_PASSWORD"]}/' \
   api/database/sync_latest.py
-perl -pi -e "s/azlina\@semesta\.com\.my/admin\@selgem.local/g" frontend/src/App.vue frontend/src/pages/Account.vue
+perl -pi -e "s/azlina\@semesta\.com\.my/admin\@kssb.local/g" frontend/src/App.vue frontend/src/pages/Account.vue
 
 if grep -rnE "fill\('azlina'|\"password\":\"azlina\"" api frontend --exclude-dir=public; then
   echo "ERROR: legacy credentials still present" >&2; exit 1

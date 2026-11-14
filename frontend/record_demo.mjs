@@ -26,7 +26,7 @@ try {
   await cap('Skrin Log Masuk', 'Sistem Pemantauan Pintar KSSB — latar belakang ialah video drone tapak sebenar')
   await wait(2500)
   const email = await page.$('input'); const pass = (await page.$$('input'))[1]
-  await email.click(); await email.fill(''); await page.keyboard.type('admin@selgem.local', { delay: 90 })
+  await email.click(); await email.fill(''); await page.keyboard.type('admin@kssb.local', { delay: 90 })
   await wait(700)
   await pass.click(); await pass.fill(''); await page.keyboard.type('password', { delay: 110 })
   await cap('Masukkan E-mel & Kata Laluan', 'Pengguna log masuk dengan akaun mereka untuk mengakses sistem')
