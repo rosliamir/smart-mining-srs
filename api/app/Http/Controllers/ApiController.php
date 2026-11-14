@@ -14,7 +14,8 @@ class ApiController extends Controller
     public function login(Request $req)
     {
         $id = $req->input('identifier', $req->input('email'));
-        $user = User::where('email', $id)->orWhere('username', $id)->first();
+        // staff sign in with their staff code (KS0197) in any letter case, or their e-mail
+        $user = User::whereRaw('lower(email) = lower(?)', [$id])->orWhereRaw('lower(username) = lower(?)', [$id])->first();
         if (! $user || ! Hash::check($req->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
@@ -36,8 +37,10 @@ class ApiController extends Controller
     private function userPayload(User $u): array
     {
         return [
-            'id' => $u->id, 'username' => $u->username, 'email' => $u->email,
+            'id' => $u->id, 'username' => $u->username, 'email' => $u->email, 'name' => $u->name, 'employee_code' => $u->employee_id,
             'position' => $u->position, 'roles' => $u->getRoleNames(),
+            // staff-only accounts use the self-service portal; everyone else also gets the admin console
+            'ess_only' => $u->hasRole('staff') && !$u->hasAnyRole(['super_admin', 'manager', 'executive', 'site_officer', 'po', 'authenticated']),
             'permissions' => $u->getAllPermissions()->pluck('name'),
         ];
     }
@@ -285,5 +288,62 @@ class ApiController extends Controller
                 ->mapWithKeys(fn ($r) => [optional($r->region)->name ?? 'Unassigned' => $r->c]),
             'sites_by_category' => Site::selectRaw("COALESCE(type,'Uncategorised') t, count(*) c")->where('is_activated', true)->groupBy('t')->pluck('c', 't'),
         ];
+    }
+
+    /** GET /api/map — every site with computed permit status + counts for the map page. */
+    public function map()
+    {
+        $today = now()->startOfDay();
+        $cams = DB::table('cameras')->whereNotNull('site_id')->selectRaw('site_id, count(*) c')->groupBy('site_id')->pluck('c', 'site_id');
+        $polys = DB::table('site_polygons')->selectRaw('site_id, count(*) c')->groupBy('site_id')->pluck('c', 'site_id');
+        $shots = DB::table('site_standoffs')->selectRaw('site_id, count(*) c')->groupBy('site_id')->pluck('c', 'site_id');
+        $latest = DB::table('weekly_reports')->whereNotNull('site_id')
+            ->selectRaw('DISTINCT ON (site_id) site_id, status, start_effective_date, end_effective_date')
+            ->orderBy('site_id')->orderByDesc('start_effective_date')->get()->keyBy('site_id');
+        $thumbs = DB::table('site_galleries')->get(['site_id', 'media'])->groupBy('site_id')->map(function ($g) {
+            foreach ($g as $row) {
+                foreach (array_reverse(json_decode($row->media ?? '[]', true) ?: []) as $m) {
+                    $u = $m['formats']['small']['url'] ?? $m['formats']['thumbnail']['url'] ?? $m['url'] ?? null;
+                    if ($u && str_starts_with($m['mime'] ?? 'image', 'image')) return $u;
+                }
+            }
+            return null;
+        });
+
+        return Site::with(['region:id,name', 'contractor:id,name'])->orderBy('site_code')->get()->map(function ($s) use ($today, $cams, $polys, $shots, $latest, $thumbs) {
+            $days = $s->permit_date_end ? (int) $today->diffInDays($s->permit_date_end, false) : null;
+            $status = $days === null ? 'unknown' : ($days < 0 ? 'expired' : ($days <= 90 ? 'warning' : 'active'));
+            $wr = $latest[$s->id] ?? null;
+            return [
+                'id' => $s->id, 'site_code' => $s->site_code, 'name' => $s->name,
+                'lat' => $s->lat !== null ? (float) $s->lat : null, 'lng' => $s->lng !== null ? (float) $s->lng : null,
+                'region' => $s->region?->name, 'contractor' => $s->contractor?->name,
+                'type' => $s->type, 'product' => $s->product, 'is_activated' => (bool) $s->is_activated,
+                'total_acreage' => $s->total_acreage !== null ? (float) $s->total_acreage : null,
+                'permit_date' => $s->permit_date?->toDateString() ?? $s->permit_date,
+                'permit_date_end' => $s->permit_date_end?->toDateString() ?? $s->permit_date_end,
+                'luas_permit_date' => $s->luas_permit_date?->toDateString() ?? $s->luas_permit_date,
+                'days_left' => $days, 'status' => $status,
+                'camera_count' => (int) ($cams[$s->id] ?? 0), 'polygon_count' => (int) ($polys[$s->id] ?? 0),
+                'photo_points' => (int) ($shots[$s->id] ?? 0), 'thumb' => $thumbs[$s->id] ?? null,
+                'latest_f001' => $wr ? ['status' => $wr->status, 'from' => $wr->start_effective_date, 'to' => $wr->end_effective_date] : null,
+            ];
+        });
+    }
+
+    /** GET /api/sites/{id}/geo — boundary polygons + drone photo points for one site. */
+    public function siteGeo($id)
+    {
+        $polygons = DB::table('site_polygons')->where('site_id', $id)->orderByDesc('date')->get(['id', 'name', 'date', 'features'])
+            ->map(fn ($p) => ['id' => $p->id, 'name' => $p->name, 'date' => $p->date, 'geojson' => json_decode($p->features ?? 'null', true)]);
+        $points = DB::table('site_standoffs')->where('site_id', $id)->whereNotNull('lat')->get(['id', 'name', 'lat', 'lng', 'media'])
+            ->map(function ($p) {
+                $m = json_decode($p->media ?? 'null', true) ?: [];
+                if (isset($m[0])) $m = $m[0];
+                return ['id' => $p->id, 'name' => $p->name, 'lat' => (float) $p->lat, 'lng' => (float) $p->lng,
+                    'photo' => $m['formats']['small']['url'] ?? $m['url'] ?? null, 'full' => $m['url'] ?? null];
+            });
+        $cameras = DB::table('cameras')->where('site_id', $id)->get(['id', 'name', 'lat', 'lng']);
+        return ['polygons' => $polygons, 'photo_points' => $points, 'cameras' => $cameras];
     }
 }

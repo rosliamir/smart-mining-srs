@@ -86,3 +86,16 @@ export function rel(o, key) {
   if (typeof v === 'object') return v.name || v.username || v.title || v.id || '—'
   return v
 }
+
+// Authenticated request with any method (PUT / DELETE / POST); throws with the API message on error.
+export async function apiSend(method, path, body) {
+  const t = token(); if (!t) throw new Error('Not authenticated')
+  const r = await fetch(`${API}/${path}`, {
+    method,
+    headers: { Authorization: `Bearer ${t}`, Accept: 'application/json', 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  })
+  const d = await r.json().catch(() => ({}))
+  if (!r.ok) throw new Error(d.message || d.error || 'Request failed')
+  return d
+}

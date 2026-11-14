@@ -71,3 +71,8 @@ a{text-decoration:none}
 .pill-green{background:#dcfce7;color:#15803d}
 .pill-gray{background:#f1f5f9;color:#64748b}
 .pill-red{background:#fee2e2;color:#b91c1c}
+
+/* small segmented filters scroll sideways instead of widening the page on phones */
+.seg{max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg button{white-space:nowrap;flex-shrink:0}

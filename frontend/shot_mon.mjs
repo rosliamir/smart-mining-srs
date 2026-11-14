@@ -1,11 +1,25 @@
 import { chromium } from 'playwright'
-const OUT='/private/tmp/claude-501/-Users-rosliamir/a631b6de-d1a5-436b-bc66-d43f1560af84/scratchpad/sm/capture'
-const b=await chromium.launch();const p=await b.newPage({viewport:{width:1440,height:1000}})
-await p.addInitScript(()=>localStorage.setItem('sm_auth','1'))
-await p.goto('http://localhost:5178/monitoring',{waitUntil:'networkidle',timeout:30000}).catch(()=>{})
-await p.waitForTimeout(1800)
-const count=await p.evaluate(()=>document.querySelectorAll('tbody tr').length)
-const showing=await p.evaluate(()=>{const e=[...document.querySelectorAll('.text-muted2')].find(x=>x.textContent.includes('Showing'));return e?e.textContent:''})
-console.log('rows rendered:',count,'|',showing)
-await p.screenshot({path:`${OUT}/mon-all.png`,fullPage:true})
-await b.close()
+const OUT = process.argv[2]
+const b = await chromium.launch(); const errs = []
+async function run(name, vp, mobile) {
+  const ctx = await b.newContext({ viewport: vp, isMobile: mobile, hasTouch: mobile, deviceScaleFactor: mobile ? 2 : 1 })
+  const p = await ctx.newPage()
+  p.on('pageerror', e => errs.push(`${name}: ${e.message}`))
+  p.on('console', m => { if (m.type() === 'error') errs.push(`${name} console: ${m.text()}`) })
+  await p.goto('http://localhost:5178/login', { waitUntil: 'domcontentloaded' }); await p.waitForTimeout(2500)
+  await p.click('button:has-text("Submit")'); await p.waitForURL('**/map', { timeout: 45000 })
+  await p.goto('http://localhost:5178/monitoring', { waitUntil: 'domcontentloaded' })
+  await p.waitForSelector('.brief', { timeout: 30000 }); await p.waitForTimeout(1500)
+  await p.screenshot({ path: `${OUT}/${name}-1-top.png`, fullPage: false })
+  await p.screenshot({ path: `${OUT}/${name}-2-full.png`, fullPage: true })
+  if (!mobile) {
+    await p.hover('.cell >> nth=3'); await p.waitForTimeout(300)
+    await p.screenshot({ path: `${OUT}/${name}-3-kpihover.png` })
+  }
+  await p.click('.utab >> nth=1'); await p.waitForTimeout(1500)
+  await p.screenshot({ path: `${OUT}/${name}-4-drawer.png` })
+  await ctx.close()
+}
+await run('desk', { width: 1440, height: 900 }, false)
+await run('mob', { width: 390, height: 844 }, true)
+console.log(errs.length ? errs.join('\n') : 'no errors'); await b.close()

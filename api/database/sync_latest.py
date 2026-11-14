@@ -53,11 +53,18 @@ def main():
             emp=EMP.get(lid(r.get("employee")))
             if not emp: continue
             c=(r.get("createdAt") or "2026-01-01T00:00:00")[:19].replace("T"," ")
+            site = lid(r.get("site")) if r.get("site") else ""   # the mining site the attendance was taken at
             w.writerow([emp,(r.get("date") or "")[:10], r.get("status") or "",
                         tm(r.get("timeclock_in")), tm(r.get("timeclock_out")),
-                        "", r.get("_id"), c, c]); n+=1
-    psqlc("TRUNCATE attendances RESTART IDENTITY;")
-    subprocess.run(["psql","-d",DB,"-c",f"\\copy attendances (employee_id,date,status,timeclock_in,timeclock_out,lat,legacy_id,created_at,updated_at) FROM '{pa}' WITH (FORMAT csv, NULL '')"],capture_output=True,text=True)
+                        "", r.get("_id"), c, c, site or ""]); n+=1
+    # Replace only the legacy rows: clock-ins made in the self-service portal (source='ess') must survive a sync.
+    psqlc("DROP TABLE IF EXISTS _att_stage; CREATE TABLE _att_stage(employee_id bigint, date date, status text, timeclock_in time, timeclock_out time,"
+          " lat numeric, legacy_id text, created_at timestamp, updated_at timestamp, site_legacy text);")
+    subprocess.run(["psql","-d",DB,"-c",f"\\copy _att_stage FROM '{pa}' WITH (FORMAT csv, NULL '')"],capture_output=True,text=True)
+    psqlc("BEGIN; DELETE FROM attendances WHERE source IS DISTINCT FROM 'ess';"
+          " INSERT INTO attendances (employee_id,date,status,timeclock_in,timeclock_out,lat,legacy_id,created_at,updated_at,site_id,source)"
+          " SELECT a.employee_id,a.date,NULLIF(a.status,''),a.timeclock_in,a.timeclock_out,a.lat,a.legacy_id,a.created_at,a.updated_at,s.id,'legacy'"
+          " FROM _att_stage a LEFT JOIN sites s ON s.legacy_id = a.site_legacy; DROP TABLE _att_stage; COMMIT;")
 
     # 3) full sales/daily-reports sync (upsert by legacy_id — no deletes, handles past & future)
     def d10(v): return v[:10] if isinstance(v,str) and v else None

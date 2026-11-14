@@ -12,6 +12,9 @@
         </nav>
         <div class="ms-auto d-flex align-items-center gap-3">
           <img src="/img/ksmm.png" class="logo-navbar d-none d-lg-block" />
+          <button class="btn btn-sm border-0 rounded-circle profile-btn kb-btn" @click="openKb()" title="Knowledge base">
+            <i class="fa-solid fa-book-open"></i>
+          </button>
           <div class="dropdown">
             <button class="btn btn-sm border-0 rounded-circle profile-btn" data-bs-toggle="dropdown">
               <i class="fa-regular fa-user"></i>
@@ -27,6 +30,7 @@
               <li><router-link class="dropdown-item" to="/site-management"><i class="fa-solid fa-location-dot me-2 text-secondary"></i>Site Management</router-link></li>
               <li><router-link class="dropdown-item" to="/user-management"><i class="fa-solid fa-users me-2 text-secondary"></i>User Management</router-link></li>
               <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item" @click="openKb()"><i class="fa-solid fa-book-open me-2 text-primary"></i>Knowledge Base</button></li>
               <li><button class="dropdown-item" @click="openSync"><i class="fa-solid fa-rotate me-2 text-primary"></i>Sync Data</button></li>
               <li><hr class="dropdown-divider"></li>
               <li><button class="dropdown-item text-danger" @click="logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Sign out</button></li>
@@ -36,7 +40,18 @@
       </div>
     </header>
 
-    <main class="flex-grow-1"><router-view/></main>
+    <main class="flex-grow-1 app-main"><router-view/></main>
+
+    <!-- MOBILE BOTTOM NAV (top links are hidden below lg) -->
+    <nav class="mnav d-lg-none">
+      <router-link v-for="n in nav" :key="n.to" :to="n.to" class="mnav-link" active-class="active">
+        <i :class="n.icon"></i><span>{{ n.label }}</span>
+      </router-link>
+    </nav>
+
+    <!-- Knowledge base popup + Ask assistant (every page) -->
+    <KnowledgeBaseModal/>
+    <AskAssistant/>
 
     <!-- Sync Data modal -->
     <div v-if="syncOpen" class="sync-backdrop" @click.self="!syncing && (syncOpen=false)">
@@ -68,6 +83,9 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { apiPost, currentUser } from './services/api'
+import { openKb } from './services/kbStore'
+import KnowledgeBaseModal from './components/KnowledgeBaseModal.vue'
+import AskAssistant from './components/AskAssistant.vue'
 const route = useRoute(); const router = useRouter()
 const _u = currentUser()
 const userEmail = computed(()=> _u?.email || 'admin@kssb.local')
@@ -80,12 +98,13 @@ async function runSync(){
   catch(e){ syncError.value=e.message||'Sync failed' }
   finally { syncing.value=false }
 }
-const isLogin = computed(()=> route.path==='/login')
+const isLogin = computed(()=> route.path==='/login' || route.path.startsWith('/ess'))   // ESS has its own shell
 const nav = [
   {to:'/map',label:'Map',icon:'fa-solid fa-map'},
   {to:'/dashboard',label:'Dashboard',icon:'fa-solid fa-table-cells-large'},
   {to:'/monitoring',label:'Monitoring',icon:'fa-solid fa-chart-line'},
   {to:'/attendance',label:'Attendance',icon:'fa-solid fa-calendar-check'},
+  {to:'/ess',label:'Self-Service',icon:'fa-solid fa-id-card-clip'},
 ]
 function go(p){ router.push(p) }
 function logout(){ localStorage.removeItem('sm_auth'); router.push('/login') }
@@ -94,7 +113,14 @@ function logout(){ localStorage.removeItem('sm_auth'); router.push('/login') }
 <style scoped>
 .profile-btn{width:38px;height:38px;color:#374151;background:#fff}
 .profile-btn:hover{background:#f1f5f9}
+.kb-btn{color:#4f46e5;background:#eef2ff}
+.kb-btn:hover{background:#4f46e5!important;color:#fff}
 .app-nav{box-shadow:0 1px 0 rgba(16,24,40,.04)}
+.mnav{position:fixed;left:0;right:0;bottom:0;height:62px;background:#fff;border-top:1px solid #eef0f3;display:flex;z-index:1500;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -6px 20px rgba(16,24,40,.06)}
+.mnav-link{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#94a3b8;text-decoration:none;font-size:11px;font-weight:600;transition:color .15s}
+.mnav-link i{font-size:18px;transition:transform .15s}
+.mnav-link.active{color:#0d6efd}.mnav-link.active i{transform:translateY(-2px)}
+@media (max-width:991.98px){ .app-main{padding-bottom:62px} }
 .sync-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:grid;place-items:center;z-index:3000;padding:20px}
 .sync-card{background:#fff;border-radius:18px;padding:24px;width:100%;max-width:480px;box-shadow:0 30px 80px rgba(0,0,0,.3)}
 .sync-ic{width:38px;height:38px;border-radius:10px;background:#0d6efd;color:#fff;display:grid;place-items:center}

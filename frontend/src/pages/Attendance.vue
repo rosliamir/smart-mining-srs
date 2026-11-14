@@ -9,10 +9,18 @@
       <div style="width:260px"><DropdownSelect v-model="siteFilter" :options="siteOptions" searchable/></div>
     </div>
 
-    <div class="utabs">
+    <!-- decision intelligence overview -->
+    <AttendanceInsights class="mt-3" :office="siteFilter==='all' ? null : siteFilter"
+      @view="openView" @office="v => siteFilter = v" @day="d => { tab='Daily'; dateStr=d; loadDaily(); scrollToDaily() }"/>
+
+    <div class="utabs" id="att-tabs">
       <button class="utab" :class="{on:tab==='Daily'}" @click="tab='Daily'">Daily</button>
       <button class="utab" :class="{on:tab==='Monthly'}" @click="setMonthly">Monthly</button>
+      <button class="utab" :class="{on:tab==='Geo'}" @click="tab='Geo'"><i class="fa-solid fa-map-location-dot me-1"></i>Lokasi & Heatmap</button>
     </div>
+
+    <!-- LOCATION MAP + HEATMAPS + IN/OUT TREND (shared with the ESS HR page) -->
+    <div v-if="tab==='Geo'" class="ess mt-3"><HrAttendanceInsights/></div>
 
     <!-- DAILY -->
     <template v-if="tab==='Daily'">
@@ -27,7 +35,7 @@
           <div style="width:160px"><DropdownSelect v-model="statusFilter" :options="statusOptions"/></div>
           <button class="btn btn-upload" @click="showUpload=true"><i class="fa-solid fa-cloud-arrow-up me-2"></i>Upload Attendance</button>
         </div>
-        <table class="table mb-0 align-middle">
+        <div class="table-responsive"><table class="table mb-0 align-middle">
           <thead><tr><th>Staff</th><th>Role/Site</th><th class="text-center">Check-in</th><th class="text-center">Check-out</th><th class="text-center">Duration</th><th class="text-center">Status</th><th class="text-center">Action</th></tr></thead>
           <tbody>
             <tr v-for="s in dailyRows" :key="s.id">
@@ -39,12 +47,12 @@
             </tr>
             <tr v-if="!dailyRows.length"><td colspan="7" class="text-center text-muted2 py-4">No data found for {{ dateStr }}</td></tr>
           </tbody>
-        </table>
+        </table></div>
       </div>
     </template>
 
     <!-- MONTHLY -->
-    <template v-else>
+    <template v-else-if="tab==='Monthly'">
       <div class="row g-3 mt-2"><div class="col-lg-3"><div class="stat-tile acc" style="--c:#0d6efd"><div class="tile-label">Total Staff</div><div class="tile-num" style="color:#0d6efd">{{ gridStaff.length }}</div></div></div></div>
       <div class="card p-4 mt-3">
         <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
@@ -122,6 +130,10 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { load, apiGet, token } from '../services/api'
 import DropdownSelect from '../components/DropdownSelect.vue'
+import AttendanceInsights from '../components/AttendanceInsights.vue'
+import HrAttendanceInsights from '../components/ess/HrAttendanceInsights.vue'
+import '../styles/ess.css'
+const scrollToDaily=()=> setTimeout(()=>document.getElementById('att-tabs')?.scrollIntoView({behavior:'smooth',block:'start'}),50)
 const tab=ref('Daily'), q=ref(''), siteFilter=ref('all'), statusFilter=ref('all')
 const dateStr=ref('2026-11-10'), showUpload=ref(false), viewStaff=ref(null), live=ref(false)
 const daily=ref({summary:{},rows:[]}), gridStaff=ref([]), sites=ref([])
@@ -170,10 +182,12 @@ const calMonth=computed(()=>{ if(!viewStaff.value) return []
 const firstClockIn=computed(()=>{ const D=viewStaff.value?.days||{}; for(const k of Object.keys(D)){ if(D[k]?.check_in) return D[k].check_in+' AM' } return '—' })
 const viewStats=computed(()=>{ if(!viewStaff.value) return []
   const D=viewStaff.value.days||{}; let wd=0,p=0,l=0,a=0,ol=0
-  // count every recorded day (incl. weekends worked) so the tally matches the coloured cells
+  // count every recorded day (incl. weekends worked) so the tally matches the coloured cells;
+  // weekdays after the last recorded day (i.e. the future) are not counted as working days yet
+  const lastDay=Math.max(0,...Object.keys(D).map(Number))
   days.value.forEach(d=>{ const st=D[d.n]?.status
     if(st==='present')p++; else if(st==='late')l++; else if(st==='absent')a++; else if(st==='on_leave')ol++
-    if(!d.weekend || st) wd++ })
+    if(st || (!d.weekend && d.n<=lastDay)) wd++ })
   const pct= wd? Math.round(((p+l)/wd)*100):0
   return [{k:'WORKING DAYS',v:wd,c:'#0d6efd'},{k:'PRESENT %',v:pct+' %',c:'#111827'},{k:'PRESENT',v:p,c:'#15803d'},{k:'LATE',v:l,c:'#b59f0a'},{k:'ABSENT',v:a,c:'#b32020'},{k:'ON LEAVE',v:ol,c:'#64748b'}] })
 

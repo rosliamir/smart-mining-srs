@@ -66,3 +66,12 @@ docker run -p 9000:9000 -p 9001:9001 \
 ```
 `config/filesystems.php` disk `s3` is pre-configured from `.env` (default disk stays `local`
 so nothing breaks when MinIO is not running). Use `Storage::disk('s3')` for large assets.
+
+## Decision intelligence, knowledge base & Employee Self-Service (Nov 2026)
+- **Insights APIs** (rule-based "what / why / what to do"): `/api/insights` (dashboard), `/api/monitoring/insights`, `/api/attendance/insights`, `/api/map`.
+- **Knowledge base + Ask**: `/api/kb` (CRUD, `/api/kb/refresh` snapshots), `/api/ask`. Set `ANTHROPIC_API_KEY` in `.env` for Claude answers; without it answers come from KB search.
+- **Employee Self-Service** (`/ess` in the SPA, `/api/ess/*`): clock-in/out with selfie + GPS geofence, leave (Employment Act 1955 minimums), overtime, time-off, claims,
+  multi-level approvals, notifications, memos, HR policies, reports. Staff log in with their staff code (e.g. `KS0294`), demo password `password`.
+- **HR monitoring** (`/api/hr/*`): attendance map, heatmaps, in/out trend, alerts (outside fence / same spot / low accuracy), geofence admin, manpower vs production.
+- Seed ESS data: `php -d memory_limit=1024M artisan db:seed --class=EssSeeder` · backfill attendance sites: `python3 -I database/import_attendance_sites.py ~/selgem-srs/data/attendances_full.json`.
+- App timezone: `APP_TIMEZONE=Asia/Kuala_Lumpur`. Selfies are stored on the local public disk (`php artisan storage:link`).

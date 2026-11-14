@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    // Claude for the "Ask" assistant (knowledge-base Q&A). Leave the key empty to use search-only answers.
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('ANTHROPIC_MODEL', 'claude-opus-5-5'),
+    ],
+
 ];
